@@ -153,3 +153,9 @@ def chat_message_bbox(mask, blur=10, kenel=8, black_thresh=100, min_area=500, sh
         plt.axis("off")
         plt.show()
     return chat_message_bbox
+
+def whosaid(message_bbox):
+    x1x2 = [[i[0],i[2]] for i in message_bbox]
+    values = [min([i[0] for i in x1x2]), max([i[1] for i in x1x2])]
+    labels = np.argmin(np.abs(np.array(x1x2) - values),1)
+    return labels

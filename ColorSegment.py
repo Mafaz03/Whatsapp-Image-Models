@@ -1,10 +1,12 @@
 import cv2 as cv
 import matplotlib.pyplot as plt
 import numpy as np
+from typing import Tuple, List
+import re
 
 def extract_color(src, hsv_color1, hsv_color2, blur=(20, 20), threshold=None, show = False):
     img = cv.imread(src) if type(src) is str else src
-    img = cv.blur(img, blur)
+    if blur != (0,0): img = cv.blur(img, blur)
     img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
     mask = cv.inRange(img_hsv, hsv_color1, hsv_color2)
     if threshold is not None:
@@ -106,7 +108,8 @@ def WhatsappSegment(src, alpha = 0.1, kernel_size=5, threshold = 240, show = Fal
             "text_box": text_box, "search_bbox": search_bbox, "name_bbox": name_bbox}
 
 def remove_circle(src, ismask=False , bbox=None, show=False, dp=0.01, 
-                  minDist=30, param1=50, param2=100, minRadius=15, maxRadius=50):
+                  minDist=30, param1=50, param2=100, minRadius=15, maxRadius=300, circle_color=(255,255,255), thickness=-1) -> Tuple[np.array, np.array]:
+    circles_list = []
     chat_mask = plt.imread(src) if type(src) is str else src
     if bbox: chat_image = chat_mask[bbox[1]:bbox[3], bbox[0]:bbox[2]]
 
@@ -123,14 +126,15 @@ def remove_circle(src, ismask=False , bbox=None, show=False, dp=0.01,
     if circles is not None:
         circles = np.round(circles[0, :]).astype("int")
         for (x, y, r) in circles:
-            cv.circle(chat_mask, (x, y), r+10, (255, 255, 255), thickness=-1)
+            cv.circle(chat_mask, (x, y), r+10, circle_color, thickness=thickness)
+        print(f"{len(circles)} found!!")
     else:
         print("No circles were found")
     if show:
         plt.imshow(chat_mask, cmap="gray")
         plt.axis('off')
         plt.show()
-    return chat_mask
+    return chat_mask, circles
 
 def chat_message_bbox(mask, blur=10, kenel=8, black_thresh=100, min_area=500, show=False):
     chat_message_bbox = []

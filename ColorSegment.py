@@ -108,12 +108,13 @@ def WhatsappSegment(src, alpha = 0.1, kernel_size=5, threshold = 240, show = Fal
             "text_box": text_box, "search_bbox": search_bbox, "name_bbox": name_bbox}
 
 def remove_circle(src, ismask=False , bbox=None, show=False, dp=0.01, 
-                  minDist=30, param1=50, param2=100, minRadius=15, maxRadius=300, circle_color=(255,255,255), thickness=-1) -> Tuple[np.array, np.array]:
+                  minDist=30, param1=50, param2=100, minRadius=15, maxRadius=300, 
+                  circle_color=(255,255,255), thickness=-1, col1=(0,0,0), col2 = (0,0,0)) -> Tuple[np.array, np.array]:
     circles_list = []
     chat_mask = plt.imread(src) if type(src) is str else src
     if bbox: chat_image = chat_mask[bbox[1]:bbox[3], bbox[0]:bbox[2]]
-
-    if not ismask: chat_mask = extract_color(chat_image, (0,0,0), (0,0,0), blur=(1,1))
+    else: chat_image = chat_mask
+    if not ismask: chat_mask = extract_color(chat_image, col1, col2, blur=(1,1))
     blurred = cv.GaussianBlur(chat_mask, (9, 9), 2)
     circles = cv.HoughCircles(blurred, 
                            cv.HOUGH_GRADIENT, 
